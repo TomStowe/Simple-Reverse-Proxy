@@ -1,0 +1,51 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Git
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      - name: Build Go Project
+        run: go build reverseproxy
+      - name: Setup Production Ready Files
+        run: sh scripts/publish.sh ${{ steps.vars.outputs.tag }} && zip -r reverseproxy.zip ./pub
+      - name: Upload production-ready build files
+        uses: actions/upload-artifact@v2
+        with:
+          name: reverseproxy
+          path: ./pub
+          if-no-files-found: error
+          retention-days: 3
+      - name: Release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{ steps.vars.outputs.tag }}
+          tag_name: ${{ github.ref }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Upload Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./reverseproxy.zip
+          asset_name: uptime-linux.zip
+          asset_content_type: application/gzip
