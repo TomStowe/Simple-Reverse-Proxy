@@ -19,8 +19,6 @@ jobs:
       - name: Set output
         id: vars
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
-      - name: Build Go Project
-        run: go build reverseproxy
       - name: Setup Production Ready Files
         run: sh scripts/publish.sh ${{ steps.vars.outputs.tag }} && zip -r reverseproxy.zip ./pub
       - name: Upload production-ready build files
