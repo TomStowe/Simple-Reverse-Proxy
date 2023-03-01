@@ -23,7 +23,7 @@ GOOS=linux GOARCH=mips64 go build -o pub/reverseproxy-linux-mips64 reverseproxy
 GOOS=linux GOARCH=mips64le go build -o pub/reverseproxy-linux-mips64le reverseproxy
 
 # Copy the Correct Files
-printf "${COLOUR}Copying t Files${NC}\n"
+printf "${COLOUR}Copying to Files${NC}\n"
 cp README.md pub/README.md
 cp config.ini pub/config.ini
 cp -r templateErrorPages pub/templateErrorPages
